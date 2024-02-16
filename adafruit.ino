@@ -1,36 +1,21 @@
 #include <Wire.h>
 #include <Adafruit_AHTX0.h>
-#include <Adafruit_MQTT.h>
-#include <Adafruit_MQTT_Client.h>
+#include <AdafruitIO_WiFi.h>
 
-#define IO_USERNAME  "diegoq321"
-#define IO_KEY       "aio_BnBE498u7rCvzplEr1cvQXZooKay"
+#define IO_USERNAME "username"
+#define IO_KEY "key_username"
 #define WIFI_SSID "nombre_red"
 #define WIFI_PASS "contrasena_red"
 
-WiFiClient wifiClient;
+AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
 
-Adafruit_MQTT_Client mqtt(&wifiClient, "io.adafruit.com", 1883, IO_USERNAME, IO_KEY);
-
-Adafruit_MQTT_Publish temperatureFeed = Adafruit_MQTT_Publish(&mqtt, IO_USERNAME "/feeds/temperature");
-Adafruit_MQTT_Publish humidityFeed = Adafruit_MQTT_Publish(&mqtt, IO_USERNAME "/feeds/humidity");
-Adafruit_MQTT_Publish motionFeed = Adafruit_MQTT_Publish(&mqtt, IO_USERNAME "/feeds/motion");
+AdafruitIO_Feed *temperatureFeed;
+AdafruitIO_Feed *humidityFeed;
+AdafruitIO_Feed *motionFeed;
 
 #define MOTION_PIN 2 // Pin digital conectado al sensor de movimiento PIR
 
 Adafruit_AHTX0 aht;
-
-void connect() {
-  Serial.print("Conectando a MQTT... ");
-  int8_t ret;
-  while ((ret = mqtt.connect()) != 0) {
-    Serial.println(mqtt.connectErrorString(ret));
-    Serial.println("Reintentando conexión MQTT en 5 segundos...");
-    mqtt.disconnect();
-    delay(5000);
-  }
-  Serial.println("Conectado!");
-}
 
 void setup() {
   Serial.begin(115200);
@@ -43,17 +28,24 @@ void setup() {
     while (1);
   }
 
+  temperatureFeed = io.feed("temperature");
+  humidityFeed = io.feed("humidity");
+  motionFeed = io.feed("motion");
+
   pinMode(MOTION_PIN, INPUT);
 
-  Serial.println("Conectando a MQTT...");
-  connect();
+  Serial.println("Conectando a Adafruit IO...");
+  io.connect();
+
+  while (io.status() < AIO_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println("Conectado!");
 }
 
 void loop() {
-  // Reconectar si la conexión MQTT se pierde
-  if (!mqtt.connected()) {
-    connect();
-  }
+  io.run();
 
   // Lectura de temperatura y humedad
   sensors_event_t temp_event, humidity_event;
@@ -70,8 +62,8 @@ void loop() {
     Serial.println(" %");
 
     // Enviar datos al feed de temperatura y humedad
-    temperatureFeed.publish(temperature);
-    humidityFeed.publish(humidity);
+    temperatureFeed->save(temperature);
+    humidityFeed->save(humidity);
   }
 
   // Lectura del sensor de movimiento
@@ -79,11 +71,11 @@ void loop() {
   if (motionDetected == HIGH) {
     Serial.println("Movimiento detectado!");
     // Enviar datos al feed de movimiento
-    motionFeed.publish("Movimiento detectado!");
+    motionFeed->save("Movimiento detectado!");
   } else {
     Serial.println("Sin movimiento");
     // Enviar datos al feed de movimiento
-    motionFeed.publish("Sin movimiento");
+    motionFeed->save("Sin movimiento");
   }
 
   delay(5000); // Espera 5 segundos antes de volver a leer los sensores

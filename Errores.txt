@@ -1,0 +1,68 @@
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:10:1: error: 'AdafruitIO_WiFi' does not name a type; did you mean 'Adafruit_AHTX0'?
+ AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
+ ^~~~~~~~~~~~~~~
+ Adafruit_AHTX0
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:12:1: error: 'AdafruitIO_Feed' does not name a type; did you mean 'Adafruit_AHTX0'?
+ AdafruitIO_Feed *temperatureFeed;
+ ^~~~~~~~~~~~~~~
+ Adafruit_AHTX0
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:13:1: error: 'AdafruitIO_Feed' does not name a type; did you mean 'Adafruit_AHTX0'?
+ AdafruitIO_Feed *humidityFeed;
+ ^~~~~~~~~~~~~~~
+ Adafruit_AHTX0
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:14:1: error: 'AdafruitIO_Feed' does not name a type; did you mean 'Adafruit_AHTX0'?
+ AdafruitIO_Feed *motionFeed;
+ ^~~~~~~~~~~~~~~
+ Adafruit_AHTX0
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino: In function 'void setup()':
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:31:3: error: 'temperatureFeed' was not declared in this scope
+   temperatureFeed = io.feed("temperature");
+   ^~~~~~~~~~~~~~~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:31:21: error: 'io' was not declared in this scope
+   temperatureFeed = io.feed("temperature");
+                     ^~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:32:3: error: 'humidityFeed' was not declared in this scope
+   humidityFeed = io.feed("humidity");
+   ^~~~~~~~~~~~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:33:3: error: 'motionFeed' was not declared in this scope
+   motionFeed = io.feed("motion");
+   ^~~~~~~~~~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:40:24: error: 'AIO_CONNECTED' was not declared in this scope
+   while (io.status() < AIO_CONNECTED) {
+                        ^~~~~~~~~~~~~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino: In function 'void loop()':
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:48:3: error: 'io' was not declared in this scope
+   io.run();
+   ^~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:65:5: error: 'temperatureFeed' was not declared in this scope
+     temperatureFeed->save(temperature);
+     ^~~~~~~~~~~~~~~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:65:5: note: suggested alternative: 'temperature'
+     temperatureFeed->save(temperature);
+     ^~~~~~~~~~~~~~~
+     temperature
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:66:5: error: 'humidityFeed' was not declared in this scope
+     humidityFeed->save(humidity);
+     ^~~~~~~~~~~~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:66:5: note: suggested alternative: 'humidity'
+     humidityFeed->save(humidity);
+     ^~~~~~~~~~~~
+     humidity
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:74:5: error: 'motionFeed' was not declared in this scope
+     motionFeed->save("Movimiento detectado!");
+     ^~~~~~~~~~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:74:5: note: suggested alternative: 'motionDetected'
+     motionFeed->save("Movimiento detectado!");
+     ^~~~~~~~~~
+     motionDetected
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:78:5: error: 'motionFeed' was not declared in this scope
+     motionFeed->save("Sin movimiento");
+     ^~~~~~~~~~
+C:\Users\diego\Desktop\Arduino\adafruit\adafruit.ino:78:5: note: suggested alternative: 'motionDetected'
+     motionFeed->save("Sin movimiento");
+     ^~~~~~~~~~
+     motionDetected
+
+exit status 1
+
+Compilation error: 'AdafruitIO_WiFi' does not name a type; did you mean 'Adafruit_AHTX0'?
