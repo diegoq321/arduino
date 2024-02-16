@@ -4,7 +4,7 @@
 #include <Adafruit_MQTT_Client.h>
 
 #define IO_USERNAME  "diegoq321"
-#define IO_KEY       "aio_BnBE498u7rCvzplEr1cvQXZooKay"
+#define IO_KEY       "io_key"
 #define WIFI_SSID "nombre_red"
 #define WIFI_PASS "contrasena_red"
 
