@@ -1,82 +1,69 @@
-#include <Wire.h>
 #include <Adafruit_AHTX0.h>
 #include <AdafruitIO_WiFi.h>
 
-#define IO_USERNAME "username"
-#define IO_KEY "key_username"
-#define WIFI_SSID "nombre_red"
-#define WIFI_PASS "contrasena_red"
+/************************ Adafruit IO Config *******************************/
+#define IO_USERNAME "tu_usuario"  // Reemplaza con tu nombre de usuario de Adafruit IO
+#define IO_KEY "tu_clave"         // Reemplaza con tu clave de Adafruit IO
 
-AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
+/******************************* WIFI **************************************/
+#define WIFI_SSID "tu_red_wifi"    // Reemplaza con el nombre de tu red WiFi
+#define WIFI_PASS "tu_contraseña"  // Reemplaza con la contraseña de tu red WiFi
 
-AdafruitIO_Feed *temperatureFeed;
-AdafruitIO_Feed *humidityFeed;
-AdafruitIO_Feed *motionFeed;
+Adafruit_IO_Arduino::AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
 
-#define MOTION_PIN 2 // Pin digital conectado al sensor de movimiento PIR
+// Include the necessary libraries for the PIR motion sensor
+const int motionSensorPin = 2; // Assuming the PIR sensor is connected to digital pin 2
 
 Adafruit_AHTX0 aht;
 
 void setup() {
   Serial.begin(115200);
-  delay(10);
-
-  Wire.begin();
+  Serial.println("Adafruit AHT10/AHT20 demo!");
 
   if (!aht.begin()) {
-    Serial.println("Error al iniciar el sensor de temperatura y humedad!");
-    while (1);
+    Serial.println("Could not find AHT? Check wiring");
+    while (1) delay(10);
   }
+  Serial.println("AHT10 or AHT20 found");
 
-  temperatureFeed = io.feed("temperature");
-  humidityFeed = io.feed("humidity");
-  motionFeed = io.feed("motion");
+  // Initialize the PIR motion sensor pin
+  pinMode(motionSensorPin, INPUT);
 
-  pinMode(MOTION_PIN, INPUT);
-
-  Serial.println("Conectando a Adafruit IO...");
+  // Connect to Adafruit IO
+  Serial.print("Connecting to Adafruit IO...");
   io.connect();
-
-  while (io.status() < AIO_CONNECTED) {
+  while(io.status() < AIO_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
-  Serial.println("Conectado!");
+  Serial.println("Connected to Adafruit IO");
 }
 
 void loop() {
-  io.run();
+  // Read the motion sensor input
+  int motionDetected = digitalRead(motionSensorPin);
 
-  // Lectura de temperatura y humedad
-  sensors_event_t temp_event, humidity_event;
-  aht.getEvent(&temp_event, &humidity_event);
-  if (isnan(temp_event.temperature) || isnan(humidity_event.relative_humidity)) {
-    Serial.println("Error al leer el sensor!");
-  } else {
-    float temperature = temp_event.temperature;
-    float humidity = humidity_event.relative_humidity;
-    Serial.print("Temperatura: ");
-    Serial.print(temperature);
-    Serial.print(" °C\tHumedad: ");
-    Serial.print(humidity);
-    Serial.println(" %");
-
-    // Enviar datos al feed de temperatura y humedad
-    temperatureFeed->save(temperature);
-    humidityFeed->save(humidity);
-  }
-
-  // Lectura del sensor de movimiento
-  int motionDetected = digitalRead(MOTION_PIN);
+  // If motion is detected, print a message
   if (motionDetected == HIGH) {
     Serial.println("Movimiento detectado!");
-    // Enviar datos al feed de movimiento
-    motionFeed->save("Movimiento detectado!");
+    // Publish motion event to Adafruit IO
+    AdafruitIO_Feed *motionFeed = io.feed("movimiento");
+    motionFeed->save("Motion Detected");
   } else {
-    Serial.println("Sin movimiento");
-    // Enviar datos al feed de movimiento
-    motionFeed->save("Sin movimiento");
+    Serial.println("Sin movimiento!");
   }
 
-  delay(5000); // Espera 5 segundos antes de volver a leer los sensores
+  sensors_event_t humidity, temp;
+  aht.getEvent(&humidity, &temp); // populate temp and humidity objects with fresh data
+  Serial.print("Temperatura: ");Serial.print(temp.temperature);Serial.println(" °C");
+  Serial.print("Humedad: ");Serial.print(humidity.relative_humidity);Serial.println("% rH");
+
+  // Publish temperature and humidity to Adafruit IO
+  AdafruitIO_Feed *temperatureFeed = io.feed("temperatura");
+  temperatureFeed->save(temp.temperature);
+
+  AdafruitIO_Feed *humidityFeed = io.feed("humedad");
+  humidityFeed->save(humidity.relative_humidity);
+
+  delay(10000);
 }
